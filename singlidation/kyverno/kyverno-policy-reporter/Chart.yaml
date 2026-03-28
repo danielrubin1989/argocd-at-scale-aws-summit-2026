@@ -1,0 +1,8 @@
+apiVersion: v2
+name: kyverno-policy-reporter
+version: 1.0.0
+description: kyverno-policy-reporter deployment managed via singlidation
+dependencies:
+  - name: policy-reporter
+    version: "2.20.0"
+    repository: "https://kyverno.github.io/policy-reporter"

@@ -1,0 +1,23 @@
+# Repository containing singlidation structure
+repoURL: https://github.com/danielrubin1989/argocd-at-scale-aws-summit-2026.git
+
+# Namespaces to create ApplicationSets for
+namespaces:
+  - devops
+  - kube-system
+  - kyverno
+
+# Cluster name (used for values file discovery)
+clusterName: us-prod-1
+
+# Custom generator plugin name (must match ArgoCD ConfigMap)
+generatorPlugin: infra-deployment-generator
+
+# ArgoCD project
+project: default
+
+# Sync policy
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

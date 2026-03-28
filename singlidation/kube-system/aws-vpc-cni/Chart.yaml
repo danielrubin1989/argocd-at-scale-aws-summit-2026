@@ -1,0 +1,8 @@
+apiVersion: v2
+name: aws-vpc-cni
+version: 1.0.0
+description: aws-vpc-cni deployment managed via singlidation
+dependencies:
+  - name: aws-vpc-cni
+    version: "1.16.0"
+    repository: "https://aws.github.io/eks-charts"

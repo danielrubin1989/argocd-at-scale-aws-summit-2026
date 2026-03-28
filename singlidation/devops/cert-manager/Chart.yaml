@@ -1,0 +1,8 @@
+apiVersion: v2
+name: cert-manager
+version: 1.0.0
+description: cert-manager deployment managed via singlidation
+dependencies:
+  - name: cert-manager
+    version: "1.14.0"
+    repository: "https://charts.jetstack.io"

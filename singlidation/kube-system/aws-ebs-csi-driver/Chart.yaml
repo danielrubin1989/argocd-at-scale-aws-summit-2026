@@ -1,0 +1,8 @@
+apiVersion: v2
+name: aws-ebs-csi-driver
+version: 1.0.0
+description: aws-ebs-csi-driver deployment managed via singlidation
+dependencies:
+  - name: aws-ebs-csi-driver
+    version: "2.28.0"
+    repository: "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"

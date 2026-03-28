@@ -1,0 +1,7 @@
+apiVersion: v2
+name: app-of-appsets
+version: 1.0.0
+description: >
+  App-of-ApplicationSets — creates one ApplicationSet per namespace.
+  Each ApplicationSet uses a matrix generator combining git file discovery
+  with a custom plugin generator for deploy-merge branch overrides.

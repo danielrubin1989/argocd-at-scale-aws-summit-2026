@@ -1,0 +1,10 @@
+# Global defaults for cert-manager — applied to ALL clusters
+cert-manager:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

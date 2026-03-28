@@ -1,0 +1,63 @@
+{{- range .Values.namespaces }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ . }}-appset
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          # Generator 1: Discover services by scanning for values-{cluster}.yaml files
+          - git:
+              repoURL: {{ $.Values.repoURL }}
+              revision: main
+              files:
+                - path: "singlidation/{{ . }}/**/values-{{ $.Values.clusterName }}.yaml"
+
+          # Generator 2: Custom plugin for deploy-merge branch overrides
+          # Returns infraDeployBranches map: { "service-name": "feature/branch" }
+          # When no PR is being deployed, returns empty map — all services use main
+          - plugin:
+              configMapRef:
+                name: {{ $.Values.generatorPlugin }}
+              input:
+                parameters:
+                  namespace: {{ . }}
+                  clusterName: {{ $.Values.clusterName }}
+
+  template:
+    metadata:
+      # Extract service name from the discovered file path
+      # e.g., singlidation/devops/external-dns/values-us-prod-1.yaml -> external-dns
+      name: '{{`{{ index (splitList "/" .path) 2 }}`}}-{{ $.Values.clusterName }}'
+    spec:
+      project: {{ $.Values.project }}
+      source:
+        repoURL: {{ $.Values.repoURL }}
+
+        # THE KEY LOGIC: Deploy-merge branch override
+        # If infraDeployBranches has this service, use the PR branch.
+        # Otherwise, use main. This is what makes gradual deployment work.
+        targetRevision: |
+          {{`{{- $service := index (splitList "/" .path) 2 -}}`}}
+          {{`{{- if hasKey .infraDeployBranches $service -}}`}}
+          {{`{{-   index .infraDeployBranches $service -}}`}}
+          {{`{{- else -}}`}}
+          main
+          {{`{{- end -}}`}}
+
+        path: '{{`{{ .path | dir }}`}}'
+        helm:
+          valueFiles:
+            - values-global.yaml
+            - '{{`{{ .path | base }}`}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: {{ . }}
+      syncPolicy:
+{{ toYaml $.Values.syncPolicy | indent 8 }}
+{{- end }}
