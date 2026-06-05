@@ -1,0 +1,16 @@
+name: Deploy to Environment
+
+on:
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: demo # Reference the 'production' environment
+
+    steps:
+      # --- Your build and deployment steps for the production environment ---
+      # Example: deploy to a cloud service using secrets
+      - name: print pr number if there
+        run: |
+          echo '${{ github.event.pull_request.number }}'
