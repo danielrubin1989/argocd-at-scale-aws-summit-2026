@@ -1,3 +1,10 @@
+{{- define "app-of-appsets.gitGenerator" }}
+- git:
+    repoURL: {{ .root.Values.repoURL }}
+    revision: main
+    files:
+      - path: "singlidation/{{ .ns }}/**/values-{{ .root.Values.clusterName }}.yaml"
+{{- end }}
 {{- range .Values.applicationSets }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -9,15 +16,11 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
+    {{- if $.Values.generatorPlugin }}
     - matrix:
         generators:
           # Generator 1: Discover services by scanning for values-{cluster}.yaml files
-          - git:
-              repoURL: {{ $.Values.repoURL }}
-              revision: main
-              files:
-                - path: "singlidation/{{ . }}/**/values-{{ $.Values.clusterName }}.yaml"
-
+          {{- include "app-of-appsets.gitGenerator" (dict "ns" . "root" $) | nindent 10 }}
           # Generator 2: Custom plugin for deploy-merge branch overrides
           # Returns infraDeployBranches map: { "service-name": "feature/branch" }
           # When no PR is being deployed, returns empty map — all services use main
@@ -28,12 +31,17 @@ spec:
                 parameters:
                   namespace: {{ . }}
                   clusterName: {{ $.Values.clusterName }}
+              requeueAfterSeconds: {{ $.Values.pluginRequeueAfterSeconds }}
+    {{- else }}
+    # Generator 1: Discover services by scanning for values-{cluster}.yaml files
+    {{- include "app-of-appsets.gitGenerator" (dict "ns" . "root" $) | nindent 4 }}
+    {{- end }}
 
   template:
     metadata:
       # Extract service name from the discovered file path
-      # e.g., singlidation/devops/external-dns/values-us-prod-1.yaml -> external-dns
-      name: '{{`{{ index (splitList "/" .path) 2 }}`}}-{{ $.Values.clusterName }}'
+      # e.g., singlidation/devops/external-dns/values-c1-cluster.yaml -> external-dns
+      name: '{{`{{ index .path.segments 2 }}`}}-{{ $.Values.clusterName }}'
     spec:
       project: {{ $.Values.project }}
       source:
@@ -42,19 +50,28 @@ spec:
         # THE KEY LOGIC: Deploy-merge branch override
         # If infraDeployBranches has this service, use the PR branch.
         # Otherwise, use main. This is what makes gradual deployment work.
+        #
+        # The two hasKey checks are nested rather than combined with `and`, because
+        # Go templates evaluate every argument of `and` eagerly — a single `and`
+        # would touch .infraDeployBranches even when the plugin generator is absent,
+        # which is exactly what missingkey=error is there to catch.
         targetRevision: |
-          {{`{{- $service := index (splitList "/" .path) 2 -}}`}}
-          {{`{{- if hasKey .infraDeployBranches $service -}}`}}
-          {{`{{-   index .infraDeployBranches $service -}}`}}
+          {{`{{- $service := index .path.segments 2 -}}`}}
+          {{`{{- if hasKey . "infraDeployBranches" -}}`}}
+          {{`{{-   if hasKey .infraDeployBranches $service -}}`}}
+          {{`{{-     index .infraDeployBranches $service -}}`}}
+          {{`{{-   else -}}`}}
+          main
+          {{`{{-   end -}}`}}
           {{`{{- else -}}`}}
           main
           {{`{{- end -}}`}}
 
-        path: '{{`{{ .path | dir }}`}}'
+        path: '{{`{{ .path.path }}`}}'
         helm:
           valueFiles:
             - values-global.yaml
-            - '{{`{{ .path | base }}`}}'
+            - '{{`{{ .path.filename }}`}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: {{ . }}

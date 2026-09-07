@@ -8,10 +8,13 @@ applicationSets:
   - kyverno
 
 # Cluster name (used for values file discovery)
-clusterName: us-prod-1
+clusterName: c1-cluster
 
 # Custom generator plugin name (must match ArgoCD ConfigMap)
 generatorPlugin: infra-deployment-generator
+
+# How often the plugin is re-polled (default ArgoCD is 30 minutes — too slow for a live demo)
+pluginRequeueAfterSeconds: 30
 
 # ArgoCD project
 project: default
@@ -21,3 +24,4 @@ syncPolicy:
   automated:
     prune: true
     selfHeal: true
+  syncOptions: [CreateNamespace=true]
