@@ -1,6 +1,0 @@
-# Cluster-specific overrides for eu-prod-1
-external-dns:
-  replicaCount: 2
-  serviceAccount:
-    annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::987654321098:role/external-dns-eu-prod-1

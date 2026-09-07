@@ -77,7 +77,7 @@ cat custom-applicationset-generator/generator.py
 
 ## Talk Resources
 
-- [Slide Deck (PDF)](./presentation/zero-risk-infra-argocd-at-scale.pdf)
+- [Presentation (PPTX)](./presentation/AWS-Summit-2026.pptx)
 
 ## License
 

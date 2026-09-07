@@ -1,6 +1,0 @@
-# Cluster-specific overrides for us-prod-1
-kyverno:
-  replicaCount: 3
-  serviceAccount:
-    annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/kyverno-us-prod-1

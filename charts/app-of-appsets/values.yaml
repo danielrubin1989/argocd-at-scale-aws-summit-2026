@@ -2,7 +2,7 @@
 repoURL: https://github.com/danielrubin1989/argocd-at-scale-aws-summit-2026.git
 
 # Namespaces to create ApplicationSets for
-namespaces:
+applicationSets:
   - devops
   - kube-system
   - kyverno

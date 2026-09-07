@@ -1,0 +1,6 @@
+# Cluster-specific overrides for c2-cluster
+aws-vpc-cni:
+  replicaCount: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/aws-vpc-cni-c2-cluster

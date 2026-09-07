@@ -1,4 +1,4 @@
-{{- range .Values.namespaces }}
+{{- range .Values.applicationSets }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
