@@ -1,0 +1,6 @@
+# Cluster-specific overrides for c1-cluster
+policy-reporter:
+  replicaCount: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/kyverno-policy-reporter-c1-cluster

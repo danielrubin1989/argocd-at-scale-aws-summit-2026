@@ -1,0 +1,6 @@
+# Cluster-specific overrides for c1-cluster
+external-dns:
+  replicaCount: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/external-dns-c1-cluster

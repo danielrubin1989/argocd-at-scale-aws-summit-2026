@@ -1,0 +1,6 @@
+# Cluster-specific overrides for c2-cluster
+aws-ebs-csi-driver:
+  replicaCount: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/aws-ebs-csi-driver-c2-cluster

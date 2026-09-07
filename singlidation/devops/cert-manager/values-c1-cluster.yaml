@@ -1,0 +1,6 @@
+# Cluster-specific overrides for c1-cluster
+cert-manager:
+  replicaCount: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/cert-manager-c1-cluster

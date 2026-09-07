@@ -30,6 +30,14 @@ logger = logging.getLogger(__name__)
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "danielrubin1989/argocd-at-scale-aws-summit-2026")
 
+# Mock configuration (env-driven so the demo works without GitHub credentials)
+MOCK_ENABLED = os.environ.get("MOCK_ENABLED", "true")
+MOCK_PR_NUMBER = int(os.environ.get("MOCK_PR_NUMBER", "42"))
+MOCK_BRANCH = os.environ.get("MOCK_BRANCH", "feature/upgrade-external-dns")
+MOCK_NAMESPACE = os.environ.get("MOCK_NAMESPACE", "devops")
+MOCK_CLUSTERS = os.environ.get("MOCK_CLUSTERS", "c1-cluster").split(",")
+MOCK_SERVICES = os.environ.get("MOCK_SERVICES", "external-dns").split(",")
+
 
 # =============================================================================
 # TODO: Implement your GitHub integration here
@@ -93,14 +101,17 @@ def get_active_deployments(namespace: str, cluster_name: str) -> dict:
     # to the devops namespace. In production, this data would come from
     # GitHub commit statuses set by your CI pipeline.
 
+    if MOCK_ENABLED.lower() not in ("true", "1", "yes"):
+        return {}
+
     mock_active_prs = [
         {
-            "pr_number": 42,
-            "branch": "feature/upgrade-external-dns",
-            "namespace": "devops",
+            "pr_number": MOCK_PR_NUMBER,
+            "branch": MOCK_BRANCH,
+            "namespace": MOCK_NAMESPACE,
             "phase": "canary",
-            "target_clusters": ["us-prod-1"],
-            "changed_services": ["external-dns"],
+            "target_clusters": MOCK_CLUSTERS,
+            "changed_services": MOCK_SERVICES,
         }
     ]
 
