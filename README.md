@@ -95,7 +95,7 @@ Each beat ends with a bold summary box stating what just happened and which line
 |---|------|--------------|
 | 0 | Preflight | Verifies every CLI is present and Docker is reachable; prints versions |
 | 1 | kind cluster | Creates a single-node cluster with its own kubeconfig under `/tmp` |
-| 2 | ArgoCD | Installs pinned ArgoCD **v3.2.12**; waits for repo-server and the ApplicationSet controller |
+| 2 | ArgoCD | Installs pinned ArgoCD **v3.5.2**; waits for repo-server and the ApplicationSet controller |
 | 3 | Gitea + "PR #42" | Runs a git server *inside* the cluster, pushes this repo to it, then creates the unmerged branch `feature/upgrade-external-dns` bumping external-dns `replicaCount: 2 → 5` |
 | 4 | Appset, no plugin | Installs `charts/app-of-appsets` with the **git generator only**. Six Applications appear, auto-discovered from six values files — all on `main` |
 | 5 | Generator up | Builds and deploys `custom-applicationset-generator` in-cluster, then curls it: it answers `external-dns → feature/upgrade-external-dns` and says nothing about the rest |
