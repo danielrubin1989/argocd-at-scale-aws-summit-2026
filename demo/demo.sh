@@ -31,6 +31,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 CLUSTER=argocd-at-scale
 DEMO_DIR=/tmp/argocd-at-scale-demo
+ARGOCD_VERSION=v3.5.2
 SLEEP=${DEMO_SLEEP:--1}
 
 KEEP=false
@@ -298,14 +299,20 @@ pause
 # =============================================================================
 # STEP 2: ARGOCD
 # =============================================================================
-section "Step 2 — Install ArgoCD v3.2.12"
+section "Step 2 — Install ArgoCD $ARGOCD_VERSION"
 
 cmd "kubectl --context kind-$CLUSTER create namespace argocd"
 kubectl --context "kind-$CLUSTER" create namespace argocd
 
-cmd "kubectl --context kind-$CLUSTER apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.2.12/manifests/install.yaml"
-kubectl --context "kind-$CLUSTER" apply -n argocd \
-  -f "https://raw.githubusercontent.com/argoproj/argo-cd/v3.2.12/manifests/install.yaml"
+# --server-side is required, not a preference. Client-side apply stores the whole
+# manifest in the kubectl.kubernetes.io/last-applied-configuration annotation, but
+# the applicationsets.argoproj.io CRD is ~1.4 MB in v3.5.2 (~1.0 MB already in
+# v3.2.12) against a 262144-byte annotation limit, so the API server rejects it:
+#   metadata.annotations: Too long: may not be more than 262144 bytes
+# Server-side apply records ownership in managedFields instead — no annotation.
+cmd "kubectl --context kind-$CLUSTER apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$ARGOCD_VERSION/manifests/install.yaml"
+kubectl --context "kind-$CLUSTER" apply --server-side -n argocd \
+  -f "https://raw.githubusercontent.com/argoproj/argo-cd/$ARGOCD_VERSION/manifests/install.yaml"
 
 explain "Waiting for argocd-repo-server (handles Git clones and Helm template)..."
 cmd "kubectl --context kind-$CLUSTER -n argocd rollout status deploy/argocd-repo-server --timeout=300s"
@@ -320,7 +327,7 @@ explain "ArgoCD is ready."
 takeaway \
 	"CHECKPOINT 2 - ARGOCD IS RUNNING" \
 	"" \
-	"Stock ArgoCD v3.2.12, no customisation. Two parts matter later:" \
+	"Stock ArgoCD $ARGOCD_VERSION, no customisation. Two parts matter later:" \
 	"" \
 	"  repo-server            clones git and renders the Helm charts" \
 	"  applicationset-ctrl    runs the generators we are about to swap" \
